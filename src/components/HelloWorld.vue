@@ -27,9 +27,9 @@
           <sui-card-group :items-per-row="3">
             <sui-card v-for="filme in filmes" :key="filme.id">
               <sui-image src="https://image.freepik.com/vetores-gratis/icone-de-rolo-de-filme-bobina-de-filme-carretel-de-filme-realista-ilustracao-em-fundo-branco-grafico_15115-65.jpg" />
-              <sui-card-content>
+              <sui-card-content style="height: 7em">
                 <sui-card-header>{{ filme.titulo }}</sui-card-header>
-                <sui-card-meta >
+                <sui-card-meta>
                   <span v-for="genero in filme.generos" :key="genero.id">{{ genero.nome }}, </span>
                 </sui-card-meta>
               </sui-card-content>
