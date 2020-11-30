@@ -8,6 +8,7 @@ import 'semantic-ui-css/semantic.min.css'
 
 Vue.config.productionTip = false
 Vue.use(SuiVue)
+/* eslint-disable no-new */
 new Vue({
   el: '#app',
   router,
