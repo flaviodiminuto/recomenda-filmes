@@ -114,8 +114,6 @@ export default {
       let lista = this.recomendacoes[this.atual_lista_index]
       // todo - quando troca o genero o filme é desmarcado sem remover da lista
       if (ev.classList.toggle('shadow')) { lista.push(filme) } else { this.removerDaLista(filme) }
-      console.log('tamanho da lista ' + lista.length)
-      console.log(lista)
     },
     getFilmes () {
       axios
