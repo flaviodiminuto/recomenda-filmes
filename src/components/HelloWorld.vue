@@ -18,14 +18,13 @@
             :content="item.nome"
             :active="isActive(item)"
             @click="select(item)"
-            style="alignment: left !important;"
           />
         </sui-menu>
       </sui-grid-column>
       <sui-grid-column stretched :width="12">
         <sui-segment>
           <sui-card-group :items-per-row="3">
-            <sui-card v-for="filme in filmes" :key="filme.id">
+            <sui-card v-for="filme in filmes" :key="filme.id" @click="selectMovie($event, filme)">
               <sui-image src="https://image.freepik.com/vetores-gratis/icone-de-rolo-de-filme-bobina-de-filme-carretel-de-filme-realista-ilustracao-em-fundo-branco-grafico_15115-65.jpg" />
               <sui-card-content style="height: 7em">
                 <sui-card-header>{{ filme.titulo }}</sui-card-header>
@@ -48,6 +47,14 @@ class Genero {
   constructor (id, nome) {
     this.id = id
     this.nome = nome
+  }
+}
+
+class Recomendacao {
+  constructor (filmesMaisLegais, filmesNormais, filmesMenosLegais) {
+    this.filmesMaisLegais = filmesMaisLegais
+    this.filmesNormais = filmesNormais
+    this.filmesMenosLegais = filmesMenosLegais
   }
 }
 
@@ -82,7 +89,9 @@ export default {
       todos_os_filmes: [],
       filmes: [],
       items: generos,
-      active: generos[0]
+      active: generos[0],
+      recomendacoes: [ [], [], [] ],
+      atual_lista_index: 0
     }
   },
   mounted () {
@@ -99,6 +108,14 @@ export default {
       } else {
         this.filtrar()
       }
+    },
+    selectMovie (event, filme) {
+      let ev = event.currentTarget
+      let lista = this.recomendacoes[this.atual_lista_index]
+      // todo - quando troca o genero o filme é desmarcado sem remover da lista
+      if (ev.classList.toggle('shadow')) { lista.push(filme) } else { this.removerDaLista(filme) }
+      console.log('tamanho da lista ' + lista.length)
+      console.log(lista)
     },
     getFilmes () {
       axios
@@ -120,6 +137,19 @@ export default {
           this.filmes.push(filme)
         }
       }
+    },
+    recomendar () {
+      let recomendacao = new Recomendacao(this.recomendacoes[0], this.recomendacoes[1], this.recomendacoes[2])
+      console.log(recomendacao)
+      // todo - realizar o envio deste recomendacao para a API recomendacao GET
+    },
+    removerDaLista (filme) {
+      let arr = this.recomendacoes[this.atual_lista_index]
+      for (var i = 0; i < arr.length; i++) {
+        if (arr[i] === filme) {
+          arr.splice(i, 1)
+        }
+      }
     }
   }
 }
@@ -131,5 +161,9 @@ export default {
 
 #container{
   padding: 30px;
+}
+
+.shadow{
+  filter: brightness(70%);
 }
 </style>
