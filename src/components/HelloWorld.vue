@@ -4,7 +4,7 @@
       <img src="https://semantic-ui.com/images/icons/plugin.png">
       <div class="content">
         Vamos nos conhecer melhor
-        <div class="sub header">Informe alguns filmes que você gosta</div>
+        <div class="sub header">{{etapa[atual_lista_index]}}</div>
       </div>
     </h2>
     ( {{filmes.length}} ) Filmes do gênero {{active.nome}}
@@ -57,6 +57,12 @@ class Recomendacao {
     this.filmesMenosLegais = filmesMenosLegais
   }
 }
+const conducao = [
+  'Informe alguns filmes que você gosta',
+  'Informe alguns filmes que não gosta tanto assim',
+  'Informe alguns filmes que você não gosta',
+  'Bem vindo ao FarpasFlix'
+]
 
 const generos = [
   new Genero(0, 'Todos os Gêneros'),
@@ -90,8 +96,9 @@ export default {
       filmes: [],
       items: generos,
       active: generos[0],
-      recomendacoes: [ [], [], [] ],
-      atual_lista_index: 0
+      selecionados: [ [], [], [] ],
+      atual_lista_index: 0,
+      etapa: conducao
     }
   },
   mounted () {
@@ -111,9 +118,24 @@ export default {
     },
     selectMovie (event, filme) {
       let ev = event.currentTarget
-      let lista = this.recomendacoes[this.atual_lista_index]
+      let lista = this.selecionados[this.atual_lista_index]
       // todo - quando troca o genero o filme é desmarcado sem remover da lista
-      if (ev.classList.toggle('shadow')) { lista.push(filme) } else { this.removerDaLista(filme) }
+      if (this.atual_lista_index < 3) {
+        ev.classList.toggle('shadow')
+        if (lista.length < 5) {
+          if (!this.removeSelecionadosList(filme)) { // se o filme ja nao estiver na lista
+            lista.push(filme)
+            if (lista.length >= 5) {
+              lista.forEach(this.removeExibidosList) // remove os filmes ja selecionados da lista
+              this.atual_lista_index++
+            }
+          }
+        }
+        if (this.atual_lista_index >= 3) {
+          this.filmes = this.todos_os_filmes // retorna a lista ao formato original, contendo todos os filmes
+        }
+      }
+      console.log(lista.length)
     },
     getFilmes () {
       axios
@@ -137,17 +159,33 @@ export default {
       }
     },
     recomendar () {
-      let recomendacao = new Recomendacao(this.recomendacoes[0], this.recomendacoes[1], this.recomendacoes[2])
-      console.log(recomendacao)
-      // todo - realizar o envio deste recomendacao para a API recomendacao GET
+      let recomendacao = new Recomendacao(this.selecionados[0], this.selecionados[1], this.selecionados[2])
+      axios
+        .post('https://fatec-recomenda.herokuapp.com/recomendacao', recomendacao)
+        .then(response => {
+          this.todos_os_filmes = response.data
+          this.filmes = this.todos_os_filmes.slice()
+        })
     },
-    removerDaLista (filme) {
-      let arr = this.recomendacoes[this.atual_lista_index]
+    removeSelecionadosList (filme) {
+      let arr = this.selecionados[this.atual_lista_index]
       for (var i = 0; i < arr.length; i++) {
         if (arr[i] === filme) {
           arr.splice(i, 1)
+          return true
         }
       }
+      return false
+    },
+    removeExibidosList (filme) {
+      let arr = this.filmes
+      for (var i = 0; i < arr.length; i++) {
+        if (arr[i] === filme) {
+          arr.splice(i, 1)
+          return true
+        }
+      }
+      return false
     }
   }
 }
