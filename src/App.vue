@@ -5,11 +5,13 @@
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import Catalogo from './components/Catalogo.vue'
+import Nav from './view/Nav'
 export default {
   name: 'App',
-  comments: {
-    HelloWorld
+  components: {
+    Catalogo: Catalogo,
+    Nav: Nav
   }
 }
 </script>

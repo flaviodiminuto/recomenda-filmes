@@ -1,11 +1,12 @@
 <template>
   <div id="container">
+    <sui-button @click.native="toggle">Show Modal</sui-button>
+    <img src="https://i.imgur.com/mXtHADt.png" height="100px" />
     <h2 class="ui header">
-      <img src="https://semantic-ui.com/images/icons/plugin.png">
       <div class="content">
         Vamos nos conhecer melhor
-        <div class="sub header">{{etapa[atual_lista_index]}}</div>
       </div>
+      <div class="sub header etapa">{{etapa[atual_lista_index]}}</div>
     </h2>
     ( {{filmes.length}} ) Filmes do gênero {{active.nome}}
     <sui-grid>
@@ -24,7 +25,7 @@
       <sui-grid-column stretched :width="12">
         <sui-segment>
           <sui-card-group :items-per-row="3">
-            <sui-card v-for="filme in filmes" :key="filme.id" @click="selectMovie($event, filme)">
+           <sui-card v-for="filme in filmes" :key="filme.id" @click="selectMovie($event, filme)">
               <sui-image src="https://image.freepik.com/vetores-gratis/icone-de-rolo-de-filme-bobina-de-filme-carretel-de-filme-realista-ilustracao-em-fundo-branco-grafico_15115-65.jpg" />
               <sui-card-content style="height: 7em">
                 <sui-card-header>{{ filme.titulo }}</sui-card-header>
@@ -37,6 +38,26 @@
         </sui-segment>
       </sui-grid-column>
     </sui-grid>
+<!--    MODAL DOS FILMES RECOMENDADOS-->
+    <div>
+      <sui-modal v-model="open">
+        <sui-modal-header>Recomendação</sui-modal-header>
+        <sui-modal-content image>
+
+          <sui-modal-description>
+            <sui-header>Recomendamos para você assistir</sui-header>
+            <ul>
+              <li v-for="filme_recomendado in recomendados" :key="filme_recomendado.id">{{filme_recomendado.titulo}}</li>
+            </ul>
+          </sui-modal-description>
+        </sui-modal-content>
+        <sui-modal-actions>
+          <sui-button positive @click.native="toggle">
+            OK
+          </sui-button>
+        </sui-modal-actions>
+      </sui-modal>
+    </div>
   </div>
 </template>
 
@@ -89,7 +110,7 @@ const generos = [
 ]
 
 export default {
-  name: 'HelloWorld',
+  name: 'Catalogo',
   data () {
     return {
       todos_os_filmes: [],
@@ -98,11 +119,22 @@ export default {
       active: generos[0],
       selecionados: [ [], [], [] ],
       atual_lista_index: 0,
-      etapa: conducao
+      etapa: conducao,
+      name: '',
+      age: 0,
+      open: false,
+      recomendados: []
     }
   },
   mounted () {
     this.getFilmes()
+
+    if (localStorage.name) {
+      this.name = localStorage.name
+    }
+    if (localStorage.age) {
+      this.age = localStorage.age
+    }
   },
   methods: {
     isActive (name) {
@@ -117,6 +149,7 @@ export default {
       }
     },
     selectMovie (event, filme) {
+      this.name = filme.titulo
       let ev = event.currentTarget
       let lista = this.selecionados[this.atual_lista_index]
       // todo - quando troca o genero o filme é desmarcado sem remover da lista
@@ -124,7 +157,7 @@ export default {
         ev.classList.toggle('shadow')
         if (lista.length < 5) {
           if (!this.removeSelecionadosList(filme)) { // se o filme ja nao estiver na lista
-            lista.push(filme)
+            lista.push(filme.id) // todo - correcao a verificacao nao é mais por filme mas por id do filme
             if (lista.length >= 5) {
               lista.forEach(this.removeExibidosList) // remove os filmes ja selecionados da lista
               this.atual_lista_index++
@@ -133,9 +166,9 @@ export default {
         }
         if (this.atual_lista_index >= 3) {
           this.filmes = this.todos_os_filmes // retorna a lista ao formato original, contendo todos os filmes
+          this.recomendar()
         }
       }
-      console.log(lista.length)
     },
     getFilmes () {
       axios
@@ -159,13 +192,15 @@ export default {
       }
     },
     recomendar () {
-      let recomendacao = new Recomendacao(this.selecionados[0], this.selecionados[1], this.selecionados[2])
+      let recomendacao = new Recomendacao(this.selecionados[0], this.selecionados[2], this.selecionados[1])
+      this.recomendados = []
       axios
         .post('https://fatec-recomenda.herokuapp.com/recomendacao', recomendacao)
         .then(response => {
-          this.todos_os_filmes = response.data
-          this.filmes = this.todos_os_filmes.slice()
+          console.log(response.data)
+          this.recomendados = response.data.filmes
         })
+      this.toggle()
     },
     removeSelecionadosList (filme) {
       let arr = this.selecionados[this.atual_lista_index]
@@ -186,6 +221,14 @@ export default {
         }
       }
       return false
+    },
+    autenticado (value) {
+      this.$cookies.set('facil', 1)
+      return this.$cookies.get('facil') === '1'
+    },
+    toggle () {
+      this.open = !this.open
+      console.log('ABRINDO O MODAL')
     }
   }
 }
@@ -194,6 +237,9 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+#container {
+  background-color: #e7e7e7;
+}
 
 #container{
   padding: 30px;
@@ -202,4 +248,5 @@ export default {
 .shadow{
   filter: brightness(70%);
 }
+
 </style>
