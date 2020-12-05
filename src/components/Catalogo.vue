@@ -1,6 +1,5 @@
 <template>
   <div id="container">
-    <sui-button @click.native="toggle">Show Modal</sui-button>
     <img src="https://i.imgur.com/mXtHADt.png" height="100px" />
     <h2 class="ui header">
       <div class="content">
