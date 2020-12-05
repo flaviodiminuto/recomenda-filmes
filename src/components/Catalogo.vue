@@ -29,7 +29,7 @@
               <sui-card-content style="height: 7em">
                 <sui-card-header>{{ filme.titulo }}</sui-card-header>
                 <sui-card-meta>
-                  <span v-for="genero in filme.generos" :key="genero.id">{{ genero.nome }}, </span>
+                  <span v-for="genero in filme.generos" :key="genero.id">{{ genero.nome }}</span>
                 </sui-card-meta>
               </sui-card-content>
             </sui-card>
@@ -38,25 +38,36 @@
       </sui-grid-column>
     </sui-grid>
 <!--    MODAL DOS FILMES RECOMENDADOS-->
-    <div>
-      <sui-modal v-model="open">
-        <sui-modal-header>Recomendação</sui-modal-header>
-        <sui-modal-content image>
-
-          <sui-modal-description>
-            <sui-header>Recomendamos para você assistir</sui-header>
-            <ul>
-              <li v-for="filme_recomendado in recomendados" :key="filme_recomendado.id">{{filme_recomendado.titulo}}</li>
-            </ul>
-          </sui-modal-description>
-        </sui-modal-content>
-        <sui-modal-actions>
-          <sui-button positive @click.native="toggle">
-            OK
-          </sui-button>
-        </sui-modal-actions>
-      </sui-modal>
-    </div>
+  <div>
+    <sui-modal v-model="open">
+      <sui-modal-header>Recomendação</sui-modal-header>
+      <sui-modal-content scrolling image>
+        <sui-image
+          wrapped
+          size="medium"
+          src="https://static.vecteezy.com/system/resources/previews/000/680/151/non_2x/gold-trophy-with-the-name-plate.jpg"
+        />
+        <sui-modal-description>
+          <sui-header>Recomendamos para você assistir</sui-header>
+          <sui-card-group :items-per-row="2">
+            <sui-card v-for="filme in recomendados" :key="filme.id"">
+              <sui-card-content>
+                <sui-card-header>{{ filme.titulo }}</sui-card-header>
+                <sui-card-description>
+                  <div v-for="genero in filme.generos" :key="genero.id">{{ genero.nome }}, </div>
+                </sui-card-description>
+              </sui-card-content>
+            </sui-card>
+          </sui-card-group>
+        </sui-modal-description>
+      </sui-modal-content>
+      <sui-modal-actions>
+        <sui-button positive @click.native="toggle">
+          OK
+        </sui-button>
+      </sui-modal-actions>
+    </sui-modal>
+  </div>
   </div>
 </template>
 
@@ -247,5 +258,4 @@ export default {
 .shadow{
   filter: brightness(70%);
 }
-
 </style>
