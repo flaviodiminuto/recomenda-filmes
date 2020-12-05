@@ -50,11 +50,11 @@
         <sui-modal-description>
           <sui-header>Recomendamos para você assistir</sui-header>
           <sui-card-group :items-per-row="2">
-            <sui-card v-for="filme in recomendados" :key="filme.id"">
+            <sui-card v-for="filme in recomendados" :key="filme.id">
               <sui-card-content>
                 <sui-card-header>{{ filme.titulo }}</sui-card-header>
                 <sui-card-description>
-                  <div v-for="genero in filme.generos" :key="genero.id">{{ genero.nome }}, </div>
+                  <div v-for="genero in filme.generos" :key="genero.id">{{ genero.nome }}</div>
                 </sui-card-description>
               </sui-card-content>
             </sui-card>
@@ -62,9 +62,11 @@
         </sui-modal-description>
       </sui-modal-content>
       <sui-modal-actions>
-        <sui-button positive @click.native="toggle">
-          OK
-        </sui-button>
+        <div is="sui-button-group">
+          <sui-button content="Salvar recomendação" color="red" ></sui-button>
+          <sui-button-or text="ou" />
+          <sui-button content="Sair" @click="toggle"></sui-button>
+        </div>
       </sui-modal-actions>
     </sui-modal>
   </div>
@@ -166,7 +168,7 @@ export default {
       if (this.atual_lista_index < 3) {
         ev.classList.toggle('shadow')
         if (lista.length < 5) {
-          if (!this.removeSelecionadosList(filme)) { // se o filme ja nao estiver na lista
+          if (!this.removeSelecionadosList(filme.id)) { // se o filme ja nao estiver na lista
             lista.push(filme.id) // todo - correcao a verificacao nao é mais por filme mas por id do filme
             if (lista.length >= 5) {
               lista.forEach(this.removeExibidosList) // remove os filmes ja selecionados da lista
@@ -212,21 +214,20 @@ export default {
         })
       this.toggle()
     },
-    removeSelecionadosList (filme) {
-      let arr = this.selecionados[this.atual_lista_index]
-      for (var i = 0; i < arr.length; i++) {
-        if (arr[i] === filme) {
-          arr.splice(i, 1)
+    removeSelecionadosList (id) {
+      let selecionadosIsList = this.selecionados[this.atual_lista_index]
+      for (var i = 0; i < selecionadosIsList.length; i++) {
+        if (selecionadosIsList[i] === id) {
+          selecionadosIsList.splice(i, 1)
           return true
         }
       }
       return false
     },
-    removeExibidosList (filme) {
-      let arr = this.filmes
-      for (var i = 0; i < arr.length; i++) {
-        if (arr[i] === filme) {
-          arr.splice(i, 1)
+    removeExibidosList (id) {
+      for (var i = 0; i < this.filmes.length; i++) {
+        if (this.filmes[i].id === id) {
+          this.filmes.splice(i, 1)
           return true
         }
       }
